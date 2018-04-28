@@ -34,52 +34,52 @@ public class Chess extends Application {
 
                 if (y == 0) {
                     switch (x){
-                        case 0:  piece = makePiece(PieceType.RED, x, y);
+                        case 0:  piece = makePiece(PieceType.RED_ROOK_LIGHT, x, y);
                             break;
-                        case 1:  piece = makePiece(PieceType.RED, x, y);
+                        case 1:  piece = makePiece(PieceType.RED_KNIGHT, x, y);
                             break;
-                        case 2:  piece = makePiece(PieceType.RED, x, y);
+                        case 2:  piece = makePiece(PieceType.RED_BISHOP_LIGHT, x, y);
                             break;
-                        case 3:  piece = makePiece(PieceType.RED, x, y);
+                        case 3:  piece = makePiece(PieceType.RED_QUEEN, x, y);
                             break;
-                        case 4: piece = makePiece(PieceType.RED, x, y);
+                        case 4: piece = makePiece(PieceType.RED_KING, x, y);
                             break;
-                        case 5: piece = makePiece(PieceType.RED, x, y);
+                        case 5: piece = makePiece(PieceType.RED_BISHOP_DARK, x, y);
                             break;
-                        case 6: piece = makePiece(PieceType.RED, x, y);
+                        case 6: piece = makePiece(PieceType.RED_KNIGHT, x, y);
                             break;
-                        case 7: piece = makePiece(PieceType.RED, x, y);
+                        case 7: piece = makePiece(PieceType.RED_ROOK_DARK, x, y);
                             break;
                         default:
                     }
                 }
                 if (y == 1) {
-                    piece = makePiece(PieceType.RED, x, y);
+                    piece = makePiece(PieceType.RED_PAWN, x, y);
                 }
 
-                if (y == 6) {
+                if (y == 7) {
                     switch (x){
-                        case 0:  piece = makePiece(PieceType.WHITE, x, y);
+                        case 0:  piece = makePiece(PieceType.WHITE_ROOK_DARK, x, y);
                             break;
-                        case 1:  piece = makePiece(PieceType.WHITE, x, y);
+                        case 1:  piece = makePiece(PieceType.WHITE_KNIGHT, x, y);
                             break;
-                        case 2:  piece = makePiece(PieceType.WHITE, x, y);
+                        case 2:  piece = makePiece(PieceType.WHITE_BISHOP_DARK, x, y);
                             break;
-                        case 3:  piece = makePiece(PieceType.WHITE, x, y);
+                        case 3:  piece = makePiece(PieceType.WHITE_KING, x, y);
                             break;
-                        case 4: piece = makePiece(PieceType.WHITE, x, y);
+                        case 4: piece = makePiece(PieceType.WHITE_QUEEN, x, y);
                             break;
-                        case 5: piece = makePiece(PieceType.WHITE, x, y);
+                        case 5: piece = makePiece(PieceType.WHITE_BISHOP_LIGHT, x, y);
                             break;
-                        case 6: piece = makePiece(PieceType.WHITE, x, y);
+                        case 6: piece = makePiece(PieceType.WHITE_KNIGHT, x, y);
                             break;
-                        case 7: piece = makePiece(PieceType.WHITE, x, y);
+                        case 7: piece = makePiece(PieceType.WHITE_ROOK_LIGHT, x, y);
                             break;
                         default:
                     }
                 }
-                if (y == 7) {
-                    piece = makePiece(PieceType.WHITE, x, y);
+                if (y == 6) {
+                    piece = makePiece(PieceType.WHITE_PAWN, x, y);
                 }
 
                 if (piece != null) {
