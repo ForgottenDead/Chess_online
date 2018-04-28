@@ -1,8 +1,11 @@
 package Client.Chess;
 
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.image.Image ;
 
 import static Client.Chess.Chess.TILE_SIZE;
 
@@ -31,26 +34,18 @@ public class Piece extends StackPane {
 
         move(x, y);
 
-        Ellipse bg = new Ellipse(TILE_SIZE * 0.3125, TILE_SIZE * 0.26);
-        bg.setFill(Color.BLACK);
 
-        bg.setStroke(Color.BLACK);
-        bg.setStrokeWidth(TILE_SIZE * 0.03);
+        GridPane gridpane = new GridPane();
+        Image image = new Image("File:C:\\Users\\Forgotten\\IdeaProjects\\" +
+                "Chess\\src\\Client\\Pieces\\black_bishop.PNG",
+                TILE_SIZE, TILE_SIZE,
+                false, false);
+        gridpane.getChildren().add(new ImageView(image));
+        gridpane.setMaxSize(0.3125, 0.3125);
+        gridpane.prefHeight(0.3125);
+        gridpane.prefWidth(0.3125);
 
-        bg.setTranslateX((TILE_SIZE - TILE_SIZE * 0.3125 * 2) / 2);
-        bg.setTranslateY((TILE_SIZE - TILE_SIZE * 0.26 * 2) / 2 + TILE_SIZE * 0.07);
-
-        Ellipse ellipse = new Ellipse(TILE_SIZE * 0.3125, TILE_SIZE * 0.26);
-        ellipse.setFill(type == PieceType.RED
-                ? Color.valueOf("#c40003") : Color.valueOf("#fff9f4"));
-
-        ellipse.setStroke(Color.BLACK);
-        ellipse.setStrokeWidth(TILE_SIZE * 0.03);
-
-        ellipse.setTranslateX((TILE_SIZE - TILE_SIZE * 0.3125 * 2) / 2);
-        ellipse.setTranslateY((TILE_SIZE - TILE_SIZE * 0.26 * 2) / 2);
-
-        getChildren().addAll(bg, ellipse);
+        getChildren().addAll(gridpane);
 
         setOnMousePressed(e -> {
             mouseX = e.getSceneX();
