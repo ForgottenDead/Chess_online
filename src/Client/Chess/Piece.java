@@ -3,8 +3,6 @@ package Client.Chess;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.image.Image ;
 
 import static Client.Chess.Chess.TILE_SIZE;
@@ -21,6 +19,10 @@ public class Piece extends StackPane {
         return type;
     }
 
+    public int getMovement() {
+        return movement;
+    }
+
     public double getOldX() {
         return oldX;
     }
@@ -29,7 +31,7 @@ public class Piece extends StackPane {
         return oldY;
     }
 
-    public Piece(PieceType type, int x, int y) {
+    public Piece(PieceType type, int x, int y, int movement) {
         this.type = type;
 
         move(x, y);
