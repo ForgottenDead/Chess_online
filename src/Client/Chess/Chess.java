@@ -282,45 +282,35 @@ public class Chess extends Application {
             if(turn==true){
                 return new MoveResult(MoveType.NONE);
             }
-            if((Math.abs(newX-piece.getOldX()/100) == 2)&&(Math.abs(newY-piece.getOldY()/100) == 1)){
-                if(!board[newX][newY].hasPiece()){
-                    return new MoveResult(MoveType.NORMAL);
-                }
-                    return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
-            }
-            else if(Math.abs(newY-piece.getOldY()/100)==2 && (Math.abs(newX-piece.getOldX()/100) == 1)){
-                if(!board[newX][newY].hasPiece()){
-                    return new MoveResult(MoveType.NORMAL);
-                }
-                return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
+            return getMoveResult_Knight(piece, newX, newY);
         }
         if (piece.getType()==PieceType.WHITE_KNIGHT) {
             if(turn==false){
                 return new MoveResult(MoveType.NONE);
             }
-            if((Math.abs(newX-piece.getOldX()/100) == 2)&&(Math.abs(newY-piece.getOldY()/100) == 1)){
-                if(!board[newX][newY].hasPiece()){
-                    return new MoveResult(MoveType.NORMAL);
-                }
-                return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
-            }
-            else if(Math.abs(newY-piece.getOldY()/100)==2 && (Math.abs(newX-piece.getOldX()/100) == 1)){
-                if(!board[newX][newY].hasPiece()){
-                    return new MoveResult(MoveType.NORMAL);
-                }
-                return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
+            return getMoveResult_Knight(piece, newX, newY);
         }
 
         return new MoveResult(MoveType.NONE);
 
+    }
+
+    private MoveResult getMoveResult_Knight(Piece piece, int newX, int newY) {
+        if((Math.abs(newX-piece.getOldX()/100) == 2)&&(Math.abs(newY-piece.getOldY()/100) == 1)){
+            if(!board[newX][newY].hasPiece()){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
+        }
+        else if(Math.abs(newY-piece.getOldY()/100)==2 && (Math.abs(newX-piece.getOldX()/100) == 1)){
+            if(!board[newX][newY].hasPiece()){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
+        }
+        else{
+            return new MoveResult(MoveType.NONE);
+        }
     }
 
     private int toBoard(double pixel) {
