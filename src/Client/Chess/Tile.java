@@ -25,6 +25,6 @@ public class Tile extends Rectangle {
 
         relocate(x * Chess.TILE_SIZE, y * Chess.TILE_SIZE);
 
-        setFill(light ? Color.valueOf("#D9C6A6") : Color.valueOf("#10110B"));
+        setFill(light ? Color.valueOf("#ffeebb") : Color.valueOf("#665f4a"));
     }
 }

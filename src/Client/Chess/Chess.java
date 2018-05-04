@@ -8,12 +8,12 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Chess extends Application {
-    public static int TURN = 1;
+    public static boolean turn = true;                 //whos turn it is
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
 
-    public Tile[][] board = new Tile[WIDTH][HEIGHT];
+    private Tile[][] board = new Tile[WIDTH][HEIGHT];
 
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
@@ -34,52 +34,52 @@ public class Chess extends Application {
 
                 if (y == 0) {
                     switch (x){
-                        case 0:  piece = makePiece(PieceType.RED_ROOK_LIGHT, x, y, 0);
+                        case 0:  piece = makePiece(PieceType.RED_ROOK_LIGHT, x, y);
                             break;
-                        case 1:  piece = makePiece(PieceType.RED_KNIGHT, x, y, 0);
+                        case 1:  piece = makePiece(PieceType.RED_KNIGHT, x, y);
                             break;
-                        case 2:  piece = makePiece(PieceType.RED_BISHOP_LIGHT, x, y, 0);
+                        case 2:  piece = makePiece(PieceType.RED_BISHOP_LIGHT, x, y);
                             break;
-                        case 3:  piece = makePiece(PieceType.RED_QUEEN, x, y, 0);
+                        case 3:  piece = makePiece(PieceType.RED_QUEEN, x, y);
                             break;
-                        case 4: piece = makePiece(PieceType.RED_KING, x, y,0 );
+                        case 4: piece = makePiece(PieceType.RED_KING, x, y);
                             break;
-                        case 5: piece = makePiece(PieceType.RED_BISHOP_DARK, x, y, 0);
+                        case 5: piece = makePiece(PieceType.RED_BISHOP_DARK, x, y);
                             break;
-                        case 6: piece = makePiece(PieceType.RED_KNIGHT, x, y, 0);
+                        case 6: piece = makePiece(PieceType.RED_KNIGHT, x, y);
                             break;
-                        case 7: piece = makePiece(PieceType.RED_ROOK_DARK, x, y, 0);
+                        case 7: piece = makePiece(PieceType.RED_ROOK_DARK, x, y);
                             break;
                         default:
                     }
                 }
                 if (y == 1) {
-                    piece = makePiece(PieceType.RED_PAWN, x, y, 0);
+                    piece = makePiece(PieceType.RED_PAWN, x, y);
                 }
 
                 if (y == 7) {
                     switch (x){
-                        case 0:  piece = makePiece(PieceType.WHITE_ROOK_DARK, x, y, 0);
+                        case 0:  piece = makePiece(PieceType.WHITE_ROOK_DARK, x, y);
                             break;
-                        case 1:  piece = makePiece(PieceType.WHITE_KNIGHT, x, y, 0);
+                        case 1:  piece = makePiece(PieceType.WHITE_KNIGHT, x, y);
                             break;
-                        case 2:  piece = makePiece(PieceType.WHITE_BISHOP_DARK, x, y, 0);
+                        case 2:  piece = makePiece(PieceType.WHITE_BISHOP_DARK, x, y);
                             break;
-                        case 3:  piece = makePiece(PieceType.WHITE_KING, x, y, 0);
+                        case 3:  piece = makePiece(PieceType.WHITE_KING, x, y);
                             break;
-                        case 4: piece = makePiece(PieceType.WHITE_QUEEN, x, y, 0);
+                        case 4: piece = makePiece(PieceType.WHITE_QUEEN, x, y);
                             break;
-                        case 5: piece = makePiece(PieceType.WHITE_BISHOP_LIGHT, x, y, 0);
+                        case 5: piece = makePiece(PieceType.WHITE_BISHOP_LIGHT, x, y);
                             break;
-                        case 6: piece = makePiece(PieceType.WHITE_KNIGHT, x, y, 0);
+                        case 6: piece = makePiece(PieceType.WHITE_KNIGHT, x, y);
                             break;
-                        case 7: piece = makePiece(PieceType.WHITE_ROOK_LIGHT, x, y, 0);
+                        case 7: piece = makePiece(PieceType.WHITE_ROOK_LIGHT, x, y);
                             break;
                         default:
                     }
                 }
                 if (y == 6) {
-                    piece = makePiece(PieceType.WHITE_PAWN, x, y, 0);
+                    piece = makePiece(PieceType.WHITE_PAWN, x, y);
                 }
 
                 if (piece != null) {
@@ -88,162 +88,116 @@ public class Chess extends Application {
                 }
             }
         }
-
         return root;
     }
 
     private MoveResult tryMove(Piece piece, int newX, int newY) {
-
-        if (board[newX][newY].hasPiece()) {
+        if(newX==piece.getOldX() && newY ==piece.getOldY()){             //if no move
             return new MoveResult(MoveType.NONE);
         }
-
-        int x0 = toBoard(piece.getOldX());
-        int y0 = toBoard(piece.getOldY());
-
-        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir) {
-            return new MoveResult(MoveType.NORMAL);
-        } else if (Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir * 2) {
-
-            int x1 = x0 + (newX - x0) / 2;
-            int y1 = y0 + (newY - y0) / 2;
-
-            if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()) {
-                return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
-            }
-        }
-
-        //-------------
         if (piece.getType()==PieceType.RED_PAWN){
-            if(legal()){
-
+            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+1))
+                &&board[newX][newY].hasPiece()==false){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if(board[newX][newY].hasPiece() &&
+                    (((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100+1)) ||
+                    ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))){
+                return new MoveResult(MoveType.KILL);
             }
             else{
                 return new MoveResult(MoveType.NONE);
             }
         }
-        if (piece.getType()==PieceType.RED_ROOK_LIGHT){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_ROOK_DARK){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_KING){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_QUEEN){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_BISHOP_LIGHT){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_BISHOP_DARK){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.RED_KNIGHT) {
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        //-----------
         if (piece.getType()==PieceType.WHITE_PAWN){
-            if(legal()){
-
+            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100-1))
+                &&board[newX][newY].hasPiece()==false){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if(board[newX][newY].hasPiece()&&
+                    (((newX==(int)(piece.getOldX())/100-1) && (newY==(int)(piece.getOldY())/100-1)) ||
+                    ((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100-1)))){
+                return new MoveResult(MoveType.KILL);
             }
             else{
                 return new MoveResult(MoveType.NONE);
             }
         }
-        if (piece.getType()==PieceType.WHITE_ROOK_LIGHT){
-            if(legal()){
-
+        if (piece.getType()==PieceType.RED_ROOK_LIGHT || piece.getType()==PieceType.RED_ROOK_DARK ||
+                piece.getType()==PieceType.WHITE_ROOK_LIGHT || piece.getType()==PieceType.WHITE_ROOK_DARK) {
+            if ((((newX == (int) (piece.getOldX()) / 100 )) ||
+                    ((newY == (int) (piece.getOldY()) / 100)))
+                    && board[newX][newY].hasPiece() == false) {
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if (board[newX][newY].hasPiece() &&
+                    (((newX == (int) (piece.getOldX()) / 100 )) ||
+                            ((newY == (int) (piece.getOldY()) / 100)))) {
+                return new MoveResult(MoveType.KILL);
+            } else {
+                return new MoveResult(MoveType.NONE);
+            }
+        }
+        if (piece.getType()==PieceType.RED_KING || piece.getType()==PieceType.WHITE_KING){
+            if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
+                    ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
+                    &&board[newX][newY].hasPiece()==false){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
+                    ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
+                    &&board[newX][newY].hasPiece()==true){
+                return new MoveResult(MoveType.KILL);
             }
             else{
                 return new MoveResult(MoveType.NONE);
             }
         }
-        if (piece.getType()==PieceType.WHITE_ROOK_DARK){
-            if(legal()){
+        if (piece.getType()==PieceType.RED_BISHOP_LIGHT||piece.getType()==PieceType.RED_BISHOP_DARK||piece.getType()==PieceType.WHITE_BISHOP_LIGHT||piece.getType()==PieceType.WHITE_BISHOP_DARK){
+            if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
+                    && board[newX][newY].hasPiece() == false) {
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
+                    && board[newX][newY].hasPiece() == true) {
+                return new MoveResult(MoveType.KILL);
+            } else {
+                return new MoveResult(MoveType.NONE);
+            }
+        }
 
+        if (piece.getType()==PieceType.RED_QUEEN||piece.getType()==PieceType.WHITE_QUEEN){
+            if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
+                    ((((newX == (int) (piece.getOldX()) / 100 )) || ((newY == (int) (piece.getOldY()) / 100)))))
+                    && board[newX][newY].hasPiece() == false) {
+                return new MoveResult(MoveType.NORMAL);
+            }
+            if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
+                    (board[newX][newY].hasPiece() &&
+                            (((newX == (int) (piece.getOldX()) / 100 )) ||
+                                    ((newY == (int) (piece.getOldY()) / 100)))))
+                    && board[newX][newY].hasPiece() == true) {
+                return new MoveResult(MoveType.KILL);
+            } else {
+                return new MoveResult(MoveType.NONE);
+            }
+        }
+
+        if (piece.getType()==PieceType.RED_KNIGHT||piece.getType()==PieceType.WHITE_KNIGHT) {
+            if((Math.abs(newX-piece.getOldX()/100) == 2)&&(Math.abs(newY-piece.getOldY()/100) == 1)){
+                return new MoveResult(MoveType.NORMAL);
+            }
+            else if(Math.abs(newY-piece.getOldY()/100)==2 && (Math.abs(newX-piece.getOldX()/100) == 1)){
+                return new MoveResult(MoveType.NORMAL);
             }
             else{
                 return new MoveResult(MoveType.NONE);
             }
         }
-        if (piece.getType()==PieceType.WHITE_KING){
-            if(legal()){
 
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.WHITE_QUEEN){
-            if(legal()){
 
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.WHITE_BISHOP_LIGHT){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.WHITE_BISHOP_DARK){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        }
-        if (piece.getType()==PieceType.WHITE_KNIGHT){
-            if(legal()){
-
-            }
-            else{
-                return new MoveResult(MoveType.NONE);
-            }
-        //-----------
         return new MoveResult(MoveType.NONE);
+
     }
 
     private int toBoard(double pixel) {
@@ -258,7 +212,7 @@ public class Chess extends Application {
         primaryStage.show();
     }
 
-    private Piece makePiece(PieceType type, int x, int y, int movement) {
+    private Piece makePiece(PieceType type, int x, int y) {
         Piece piece = new Piece(type, x, y);
 
         piece.setOnMouseReleased(e -> {
