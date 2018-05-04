@@ -16,6 +16,7 @@ public class Piece extends StackPane {
 
     private double mouseX, mouseY;
     private double oldX, oldY;
+    private int movement;
 
     public PieceType getType() {
         return type;
@@ -29,8 +30,16 @@ public class Piece extends StackPane {
         return oldY;
     }
 
-    public Piece(PieceType type, int x, int y) {
+    public void setMovement() {
+        movement++;
+    }
+    public int getMovement(){
+        return movement;
+    }
+
+    public Piece(PieceType type, int x, int y, int movement) {
         this.type = type;
+        this.movement=movement;
 
         move(x, y);
         GridPane gridpane = new GridPane();
