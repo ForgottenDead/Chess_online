@@ -29,6 +29,36 @@ public class Chess extends Application {
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Scene sceneGame = new Scene(createContent());
+        Button yesButton = new Button("Yes");
+        Button noButton = new Button("No");
+
+        Label label = new Label("Type your username below.");
+        Button button = new Button("Sign_in");
+        button.setOnAction(e -> primaryStage.setScene(sceneGame));
+        VBox layoutSignIn = new VBox(20);
+        layoutSignIn.getChildren().addAll(label, button, yesButton, noButton);
+        sceneSignIn = new Scene(layoutSignIn, 200, 200);
+
+
+
+        Button buttonOther = new Button("Back");
+        buttonOther.setOnAction(e -> primaryStage.setScene(sceneSignIn));
+        StackPane layoutOther = new StackPane();
+        layoutOther.getChildren().add(buttonOther);
+        sceneOther = new Scene(layoutOther,200,200);
+
+        primaryStage.setTitle("Chess");
+        primaryStage.setScene(sceneSignIn);
+        primaryStage.show();
+    }
+
     private Parent createContent() {
         Pane root = new Pane();
         root.setPrefSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -101,6 +131,60 @@ public class Chess extends Application {
         }
         return root;
     }
+
+
+    private Piece makePiece(PieceType type, int x, int y, int movement) {
+        Piece piece = new Piece(type, x, y, movement);
+
+        piece.setOnMouseReleased(e -> {
+            int newX = toBoard(piece.getLayoutX());
+            int newY = toBoard(piece.getLayoutY());
+
+            MoveResult result;
+
+            if (newX < 0 || newY < 0 || newX >= WIDTH || newY >= HEIGHT) {
+                result = new MoveResult(MoveType.NONE);
+            } else {
+                result = tryMove(piece, newX, newY);
+            }
+
+            int x0 = toBoard(piece.getOldX());
+            int y0 = toBoard(piece.getOldY());
+
+            switch (result.getType()) {
+                case NONE:
+                    piece.abortMove();
+                    break;
+                case NORMAL:
+                    piece.move(newX, newY);
+                    board[x0][y0].setPiece(null);
+                    board[newX][newY].setPiece(piece);
+                    turn=!turn;
+                    Check_turn_Results();
+                    piece.setMovement();
+                    break;
+                case KILL:
+                    piece.move(newX, newY);
+                    board[x0][y0].setPiece(null);
+                    board[newX][newY].setPiece(piece);
+
+                    Piece otherPiece = result.getPiece();
+                    board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
+                    pieceGroup.getChildren().remove(otherPiece);
+                    turn=!turn;
+                    Check_turn_Results();
+                    piece.setMovement();
+                    break;
+            }
+        });
+        return piece;
+    }
+
+    private int toBoard(double pixel) {
+        return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
+    }
+
+
 
     private MoveResult tryMove(Piece piece, int newX, int newY) {
         if(newX==piece.getOldX()/100 && newY ==piece.getOldY()/100){             //if no move
@@ -306,7 +390,6 @@ public class Chess extends Application {
         }
 
         return new MoveResult(MoveType.NONE);
-
     }
 
     private MoveResult getMoveResult_Knight(Piece piece, int newX, int newY) {
@@ -326,153 +409,102 @@ public class Chess extends Application {
             return new MoveResult(MoveType.NONE);
         }
     }
-
-    private int toBoard(double pixel) {
-        return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        Scene sceneGame = new Scene(createContent());
-        Button yesButton = new Button("Yes");
-        Button noButton = new Button("No");
-
-        Label label = new Label("Type your username below.");
-        Button button = new Button("Sign_in");
-        button.setOnAction(e -> primaryStage.setScene(sceneGame));
-        VBox layoutSignIn = new VBox(20);
-        layoutSignIn.getChildren().addAll(label, button, yesButton, noButton);
-        sceneSignIn = new Scene(layoutSignIn, 200, 200);
-
-
-
-        Button buttonOther = new Button("Back");
-        buttonOther.setOnAction(e -> primaryStage.setScene(sceneSignIn));
-        StackPane layoutOther = new StackPane();
-        layoutOther.getChildren().add(buttonOther);
-        sceneOther = new Scene(layoutOther,200,200);
-
-        primaryStage.setTitle("Chess");
-        primaryStage.setScene(sceneSignIn);
-        primaryStage.show();
-    }
-
-    private Piece makePiece(PieceType type, int x, int y, int movement) {
-        Piece piece = new Piece(type, x, y, movement);
-
-        piece.setOnMouseReleased(e -> {
-            int newX = toBoard(piece.getLayoutX());
-            int newY = toBoard(piece.getLayoutY());
-
-            MoveResult result;
-
-            if (newX < 0 || newY < 0 || newX >= WIDTH || newY >= HEIGHT) {
-                result = new MoveResult(MoveType.NONE);
-            } else {
-                result = tryMove(piece, newX, newY);
-            }
-
-            int x0 = toBoard(piece.getOldX());
-            int y0 = toBoard(piece.getOldY());
-
-            switch (result.getType()) {
-                case NONE:
-                    piece.abortMove();
-                    break;
-                case NORMAL:
-                    piece.move(newX, newY);
-                    board[x0][y0].setPiece(null);
-                    board[newX][newY].setPiece(piece);
-                    turn=!turn;
-                    Check_turn_Results();
-                    piece.setMovement();
-                    break;
-                case KILL:
-                    piece.move(newX, newY);
-                    board[x0][y0].setPiece(null);
-                    board[newX][newY].setPiece(piece);
-
-                    Piece otherPiece = result.getPiece();
-                    board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
-                    pieceGroup.getChildren().remove(otherPiece);
-                    turn=!turn;
-                    Check_turn_Results();
-                    piece.setMovement();
-                    break;
-            }
-        });
-
-        return piece;
-    }
-    private void Check_turn_Results(){
-        String color="grey";
-        boolean winner = true;
-        for (int x = 0; x < board.length;x++){
-            for (int y = 0; y < board[x].length;y++){
-                if(turn){
-                    color="Red";
-                    if(board[x][y].getPiece()==(null)){
-                        continue;
-                    }
-                    if(board[x][y].getPiece().getType().equals(PieceType.WHITE_KING)){
-                        winner=false;
-                        break;
-                    }
-
-                }
-                else{
-                    color="White";
-                    if(board[x][y].getPiece()==(null)){
-                        continue;
-                    }
-                    if(board[x][y].getPiece().getType().equals(PieceType.RED_KING)){
-                        winner=false;
-                        break;
+    private boolean checkPathBlockageStraight(Piece piece, int newX, int newY){
+        int curX = (int)piece.getOldX()/100;
+        int curY = (int)piece.getOldY()/100;
+        if(piece.getOldX()/100==newX){
+            if(piece.getOldY()/100>newY){
+                for(int i =1; i < piece.getOldY()/100 - newY; i++){
+                    curY++;
+                    if(board[curX][curY].hasPiece()){
+                        return false;
                     }
                 }
             }
-            if(!winner){
-                break;
+            if(piece.getOldY()/100<newY){
+                for(int i =1; i > piece.getOldY()/100 - newY; i--){
+                    curY++;
+                    if(board[curX][curY].hasPiece()){
+                        return false;
+                    }
+                }
             }
         }
-        if(winner){
-            Winner_Alert( color);
-            System.exit(0);
+        if(piece.getOldY()/100==newY){
+            if(piece.getOldX()/100>newX){
+                for(int i =1; i < piece.getOldX()/100 - newX; i++){
+                    curX++;
+                    if(board[curX][curY].hasPiece()){
+                        return false;
+                    }
+                }
+            }
+            if(piece.getOldX()/100<newX){
+                for(int i =1; i < piece.getOldX()/100 - newX; i++){
+                    curX++;
+                    if(board[curX][curY].hasPiece()){
+                        return false;
+                    }
+                }
+            }
         }
+        return true;
+    }
+    private boolean checkPathBlockageDiagonal(Piece piece, int newX, int newY){
+        int curX = (int)piece.getOldX()/100;
+        int curY = (int)piece.getOldY()/100;
+        if(piece.getOldX()/100>newX && piece.getOldY()/100>newY){
+            for(int i =1; i < piece.getOldX()/100 - newX; i++){
+                curX++;
+                curY++;
+                if(board[curX][curY].hasPiece()){
+                    return false;
+                }
+            }
+        }
+        if(piece.getOldX()/100>newX && piece.getOldY()/100<newY){
+            for(int i =1; i < piece.getOldX()/100 - newX; i++){
+                curX++;
+                curY--;
+                if(board[curX][curY].hasPiece()){
+                    return false;
+                }
+            }
+        }
+        if(piece.getOldX()/100<newX && piece.getOldY()/100>newY){
+            for(int i =1; i > piece.getOldX()/100 - newX; i--){
+                curX--;
+                curY++;
+                if(board[curX][curY].hasPiece()){
+                    return false;
+                }
+            }
+        }
+        if(piece.getOldX()/100<newX && piece.getOldY()/100<newY){
+            for(int i =1; i > piece.getOldX()/100 - newX; i--){
+                curX--;
+                curY--;
+                if(board[curX][curY].hasPiece()){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void Check_promotion_Results(Piece piece){
         if(turn){
-            if(piece.getOldY()/100==0){
+            if(piece.getOldY()/100==1){
                 Promotion(piece);
             }
         }
         else{
-            if(piece.getOldY()/100==8){
+            if(piece.getOldY()/100==7){
                 Promotion(piece);
             }
         }
     }
 
-    private static void Winner_Alert(String color){
-        Stage winner_Alert = new Stage();
-        winner_Alert.initModality(Modality.APPLICATION_MODAL);
-        winner_Alert.setTitle("WINNER!");
-        winner_Alert.setMinHeight(250);
-        winner_Alert.setMinWidth(250);
-        Label label = new Label(color+" Wins");
-        Button closeButton = new Button("Close");
-
-        closeButton.setOnAction(e -> winner_Alert.close());
-
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(label, closeButton);
-        layout.setAlignment(Pos.CENTER);
-
-        Scene scene = new Scene(layout);
-        winner_Alert.setScene(scene);
-        winner_Alert.showAndWait();
-    }
     private static void Promotion(Piece piece){
         Stage promotion = new Stage();
         promotion.initModality(Modality.APPLICATION_MODAL);
@@ -515,7 +547,60 @@ public class Chess extends Application {
         promotion.showAndWait();
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private void Check_turn_Results(){
+        String color="grey";
+        boolean winner = true;
+        for (int x = 0; x < board.length;x++){
+            for (int y = 0; y < board[x].length;y++){
+                if(turn){
+                    color="Red";
+                    if(board[x][y].getPiece()==(null)){
+                        continue;
+                    }
+                    if(board[x][y].getPiece().getType().equals(PieceType.WHITE_KING)){
+                        winner=false;
+                        break;
+                    }
+
+                }
+                else{
+                    color="White";
+                    if(board[x][y].getPiece()==(null)){
+                        continue;
+                    }
+                    if(board[x][y].getPiece().getType().equals(PieceType.RED_KING)){
+                        winner=false;
+                        break;
+                    }
+                }
+            }
+            if(!winner){
+                break;
+            }
+        }
+        if(winner){
+            Winner_Alert( color);
+            System.exit(0);
+        }
+    }
+
+    private static void Winner_Alert(String color){
+        Stage winner_Alert = new Stage();
+        winner_Alert.initModality(Modality.APPLICATION_MODAL);
+        winner_Alert.setTitle("WINNER!");
+        winner_Alert.setMinHeight(250);
+        winner_Alert.setMinWidth(250);
+        Label label = new Label(color+" Wins");
+        Button closeButton = new Button("Close");
+
+        closeButton.setOnAction(e -> winner_Alert.close());
+
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(label, closeButton);
+        layout.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(layout);
+        winner_Alert.setScene(scene);
+        winner_Alert.showAndWait();
     }
 }
