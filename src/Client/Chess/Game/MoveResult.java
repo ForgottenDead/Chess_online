@@ -1,4 +1,4 @@
-package Client.Chess;
+package Client.Chess.Game;
 
 public class MoveResult {
 

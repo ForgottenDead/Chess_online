@@ -1,4 +1,4 @@
-package Client.Chess;
+package Client.Chess.Game;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;

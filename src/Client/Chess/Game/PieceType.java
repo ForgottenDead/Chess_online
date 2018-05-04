@@ -1,4 +1,4 @@
-package Client.Chess;
+package Client.Chess.Game;
 
 public enum PieceType { //insted of move direction give them a move ID
     RED(1), WHITE(-1),

@@ -1,13 +1,11 @@
-package Client.Chess;
+package Client.Chess.Game;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.image.Image ;
 
-import static Client.Chess.Chess.TILE_SIZE;
+import static Client.Chess.Game.Chess.TILE_SIZE;
 
 
 public class Piece extends StackPane {
