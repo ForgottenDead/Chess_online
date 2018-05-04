@@ -35,6 +35,11 @@ public class Piece extends StackPane {
         return movement;
     }
 
+    public void setPieceType(PieceType type) {
+        this.type=type;
+    }
+
+
     public Piece(PieceType type, int x, int y, int movement) {
         this.type = type;
         this.movement=movement;

@@ -111,12 +111,13 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100+1)||
-                                                        ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
+                                        ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
                 &&board[newX][newY].hasPiece()==false){
                 return new MoveResult(MoveType.NORMAL);
             }
             if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+2))
                     &&board[newX][newY].hasPiece()==false&&piece.getMovement()==0){
+                Check_promotion_Results(piece);
                 return new MoveResult(MoveType.NORMAL);
             }
             if(board[newX][newY].hasPiece() &&
@@ -133,8 +134,9 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100-1)||
-                                                ((newY==(int)(piece.getOldY())/100-2)&&piece.getMovement()==0)))
+                                        ((newY==(int)(piece.getOldY())/100-2)&&piece.getMovement()==0)))
                 &&board[newX][newY].hasPiece()==false){
+                Check_promotion_Results(piece);
                 return new MoveResult(MoveType.NORMAL);
             }
             if(board[newX][newY].hasPiece()&&
@@ -438,6 +440,20 @@ public class Chess extends Application {
             System.exit(0);
         }
     }
+
+    private void Check_promotion_Results(Piece piece){
+        if(turn){
+            if(piece.getOldY()/100==0){
+                Promotion(piece);
+            }
+        }
+        else{
+            if(piece.getOldY()/100==8){
+                Promotion(piece);
+            }
+        }
+    }
+
     private static void Winner_Alert(String color){
         Stage winner_Alert = new Stage();
         winner_Alert.initModality(Modality.APPLICATION_MODAL);
@@ -456,6 +472,47 @@ public class Chess extends Application {
         Scene scene = new Scene(layout);
         winner_Alert.setScene(scene);
         winner_Alert.showAndWait();
+    }
+    private static void Promotion(Piece piece){
+        Stage promotion = new Stage();
+        promotion.initModality(Modality.APPLICATION_MODAL);
+        promotion.setTitle("WINNER!");
+        promotion.setMinHeight(250);
+        promotion.setMinWidth(250);
+        Label label = new Label("Pick Promotion");
+        Button knightButton = new Button("knight");
+        Button bishopButton = new Button("Bishop");
+        Button rookButton = new Button("Rook");
+        Button queenButton = new Button("Queen");
+        if(turn){
+            knightButton.setOnAction(e -> piece.setPieceType(PieceType.WHITE_KNIGHT));
+            if(piece.getOldX()/100%2==0){
+                bishopButton.setOnAction(e -> piece.setPieceType(PieceType.WHITE_BISHOP_DARK));
+            }
+            else{
+                bishopButton.setOnAction(e -> piece.setPieceType(PieceType.WHITE_BISHOP_LIGHT));
+            }
+            rookButton.setOnAction(e -> piece.setPieceType(PieceType.WHITE_ROOK_DARK));
+            queenButton.setOnAction(e -> piece.setPieceType(PieceType.WHITE_QUEEN ));
+        }
+        else{
+            knightButton.setOnAction(e -> piece.setPieceType(PieceType.RED_KNIGHT));
+            if(piece.getOldX()/100%2==0){
+                bishopButton.setOnAction(e -> piece.setPieceType(PieceType.RED_BISHOP_LIGHT));
+            }
+            else{
+                bishopButton.setOnAction(e -> piece.setPieceType(PieceType.RED_BISHOP_DARK));
+            }
+            rookButton.setOnAction(e -> piece.setPieceType(PieceType.RED_ROOK_DARK));
+            queenButton.setOnAction(e -> piece.setPieceType(PieceType.RED_QUEEN ));
+        }
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(label, knightButton, bishopButton, rookButton, queenButton);
+        layout.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(layout);
+        promotion.setScene(scene);
+        promotion.showAndWait();
     }
 
     public static void main(String[] args) {
