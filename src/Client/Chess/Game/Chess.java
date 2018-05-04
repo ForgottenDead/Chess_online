@@ -196,17 +196,20 @@ public class Chess extends Application {
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100+1)||
                                         ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
-                &&board[newX][newY].hasPiece()==false){
+                &&board[newX][newY].hasPiece()==false
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.NORMAL);
             }
-            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+2))
-                    &&board[newX][newY].hasPiece()==false&&piece.getMovement()==0){
-                Check_promotion_Results(piece);
-                return new MoveResult(MoveType.NORMAL);
-            }
+//            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+2))
+//                    &&board[newX][newY].hasPiece()==false&&piece.getMovement()==0
+//                    &&checkPathBlockageStraight(piece, newX, newY)){
+//                Check_promotion_Results(piece);
+//                return new MoveResult(MoveType.NORMAL);
+//            }
             if(board[newX][newY].hasPiece() &&
                     (((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100+1)) ||
-                    ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))){
+                    ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
             else{
@@ -219,13 +222,15 @@ public class Chess extends Application {
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100-1)||
                                         ((newY==(int)(piece.getOldY())/100-2)&&piece.getMovement()==0)))
-                &&board[newX][newY].hasPiece()==false){
+                &&board[newX][newY].hasPiece()==false
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 Check_promotion_Results(piece);
                 return new MoveResult(MoveType.NORMAL);
             }
             if(board[newX][newY].hasPiece()&&
                     (((newX==(int)(piece.getOldX())/100-1) && (newY==(int)(piece.getOldY())/100-1)) ||
-                    ((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100-1)))){
+                    ((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100-1)))
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
             else{
@@ -238,12 +243,14 @@ public class Chess extends Application {
             }
             if ((((newX == (int) (piece.getOldX()) / 100 )) ||
                     ((newY == (int) (piece.getOldY()) / 100)))
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageStraight(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if (board[newX][newY].hasPiece() &&
                     (((newX == (int) (piece.getOldX()) / 100 )) ||
-                            ((newY == (int) (piece.getOldY()) / 100)))) {
+                            ((newY == (int) (piece.getOldY()) / 100)))
+                    &&checkPathBlockageStraight(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -255,12 +262,14 @@ public class Chess extends Application {
             }
             if ((((newX == (int) (piece.getOldX()) / 100 )) ||
                     ((newY == (int) (piece.getOldY()) / 100)))
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageStraight(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if (board[newX][newY].hasPiece() &&
                     (((newX == (int) (piece.getOldX()) / 100 )) ||
-                            ((newY == (int) (piece.getOldY()) / 100)))) {
+                            ((newY == (int) (piece.getOldY()) / 100)))
+                    &&checkPathBlockageStraight(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -273,12 +282,14 @@ public class Chess extends Application {
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
                     ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
-                    &&board[newX][newY].hasPiece()==false){
+                    &&board[newX][newY].hasPiece()==false
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.NORMAL);
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
                     ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
-                    &&board[newX][newY].hasPiece()==true){
+                    &&board[newX][newY].hasPiece()==true
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
             else{
@@ -291,12 +302,14 @@ public class Chess extends Application {
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
                     ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
-                    &&board[newX][newY].hasPiece()==false){
+                    &&board[newX][newY].hasPiece()==false
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.NORMAL);
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
                     ((newX<=(int)(piece.getOldX())/100+1)&&(newX>=(int)(piece.getOldX())/100-1))
-                    &&board[newX][newY].hasPiece()==true){
+                    &&board[newX][newY].hasPiece()==true
+                    &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
             else{
@@ -308,11 +321,13 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
-                    && board[newX][newY].hasPiece() == true) {
+                    && board[newX][newY].hasPiece() == true
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -324,11 +339,13 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
-                    && board[newX][newY].hasPiece() == true) {
+                    && board[newX][newY].hasPiece() == true
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -342,14 +359,18 @@ public class Chess extends Application {
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
                     ((((newX == (int) (piece.getOldX()) / 100 )) || ((newY == (int) (piece.getOldY()) / 100)))))
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageStraight(piece, newX, newY)
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
                     (board[newX][newY].hasPiece() &&
                             (((newX == (int) (piece.getOldX()) / 100 )) ||
                                     ((newY == (int) (piece.getOldY()) / 100)))))
-                    && board[newX][newY].hasPiece() == true) {
+                    && board[newX][newY].hasPiece() == true
+                    &&checkPathBlockageStraight(piece, newX, newY)
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -362,14 +383,18 @@ public class Chess extends Application {
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
                     ((((newX == (int) (piece.getOldX()) / 100 )) || ((newY == (int) (piece.getOldY()) / 100)))))
-                    && board[newX][newY].hasPiece() == false) {
+                    && board[newX][newY].hasPiece() == false
+                    &&checkPathBlockageStraight(piece, newX, newY)
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.NORMAL);
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
                     (board[newX][newY].hasPiece() &&
                             (((newX == (int) (piece.getOldX()) / 100 )) ||
                                     ((newY == (int) (piece.getOldY()) / 100)))))
-                    && board[newX][newY].hasPiece() == true) {
+                    && board[newX][newY].hasPiece() == true
+                    &&checkPathBlockageStraight(piece, newX, newY)
+                    &&checkPathBlockageDiagonal(piece, newX, newY)) {
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             } else {
                 return new MoveResult(MoveType.NONE);
@@ -412,17 +437,17 @@ public class Chess extends Application {
     private boolean checkPathBlockageStraight(Piece piece, int newX, int newY){
         int curX = (int)piece.getOldX()/100;
         int curY = (int)piece.getOldY()/100;
-        if(piece.getOldX()/100==newX){
-            if(piece.getOldY()/100>newY){
+        if(piece.getOldX()/100==newX){              //not moving hor
+            if(piece.getOldY()/100>newY){           //moving vert    backwards
                 for(int i =1; i < piece.getOldY()/100 - newY; i++){
-                    curY++;
+                    curY--;
                     if(board[curX][curY].hasPiece()){
                         return false;
                     }
                 }
             }
-            if(piece.getOldY()/100<newY){
-                for(int i =1; i > piece.getOldY()/100 - newY; i--){
+            if(piece.getOldY()/100<newY){           //moving vert     forward
+                for(int i =1; i < newY-piece.getOldY()/100; i++){
                     curY++;
                     if(board[curX][curY].hasPiece()){
                         return false;
@@ -430,17 +455,17 @@ public class Chess extends Application {
                 }
             }
         }
-        if(piece.getOldY()/100==newY){
-            if(piece.getOldX()/100>newX){
+        if(piece.getOldY()/100==newY){          //not moving vert
+            if(piece.getOldX()/100>newX){       //moving hor    backwards
                 for(int i =1; i < piece.getOldX()/100 - newX; i++){
-                    curX++;
+                    curX--;
                     if(board[curX][curY].hasPiece()){
                         return false;
                     }
                 }
             }
-            if(piece.getOldX()/100<newX){
-                for(int i =1; i < piece.getOldX()/100 - newX; i++){
+            if(piece.getOldX()/100<newX){       //moving hor    forward
+                for(int i =1; i < newX-piece.getOldX()/100 ; i++){
                     curX++;
                     if(board[curX][curY].hasPiece()){
                         return false;
@@ -453,26 +478,17 @@ public class Chess extends Application {
     private boolean checkPathBlockageDiagonal(Piece piece, int newX, int newY){
         int curX = (int)piece.getOldX()/100;
         int curY = (int)piece.getOldY()/100;
-        if(piece.getOldX()/100>newX && piece.getOldY()/100>newY){
-            for(int i =1; i < piece.getOldX()/100 - newX; i++){
-                curX++;
-                curY++;
-                if(board[curX][curY].hasPiece()){
-                    return false;
-                }
-            }
-        }
-        if(piece.getOldX()/100>newX && piece.getOldY()/100<newY){
-            for(int i =1; i < piece.getOldX()/100 - newX; i++){
-                curX++;
+        if(piece.getOldX()/100>newX && piece.getOldY()/100>newY){       //x back y back
+            for(int i =1; i < piece.getOldX()/100-newX ; i++){
+                curX--;
                 curY--;
                 if(board[curX][curY].hasPiece()){
                     return false;
                 }
             }
         }
-        if(piece.getOldX()/100<newX && piece.getOldY()/100>newY){
-            for(int i =1; i > piece.getOldX()/100 - newX; i--){
+        if(piece.getOldX()/100>newX && piece.getOldY()/100<newY){       //x back y forward
+            for(int i =1; i < piece.getOldX()/100-newX ; i++){
                 curX--;
                 curY++;
                 if(board[curX][curY].hasPiece()){
@@ -480,10 +496,19 @@ public class Chess extends Application {
                 }
             }
         }
-        if(piece.getOldX()/100<newX && piece.getOldY()/100<newY){
-            for(int i =1; i > piece.getOldX()/100 - newX; i--){
-                curX--;
+        if(piece.getOldX()/100<newX && piece.getOldY()/100>newY){       //x forward y back
+            for(int i =1; i > newX-piece.getOldX()/100; i--){
+                curX++;
                 curY--;
+                if(board[curX][curY].hasPiece()){
+                    return false;
+                }
+            }
+        }
+        if(piece.getOldX()/100<newX && piece.getOldY()/100<newY){       //x forward y forward
+            for(int i =1; i > newX-piece.getOldX()/100; i--){       //-1 so it can kill on landing?
+                curX++;
+                curY++;
                 if(board[curX][curY].hasPiece()){
                     return false;
                 }
