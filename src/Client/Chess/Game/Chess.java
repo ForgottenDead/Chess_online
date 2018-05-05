@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+
 public class Chess extends Application {
 
     Scene sceneSignIn;
@@ -36,22 +37,17 @@ public class Chess extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Scene sceneGame = new Scene(createContent());
-        Button yesButton = new Button("Yes");
-        Button noButton = new Button("No");
 
-        Label label = new Label("Type your username below.");
         Button button = new Button("Sign_in");
+
         button.setOnAction(e -> primaryStage.setScene(sceneGame));
         VBox layoutSignIn = new VBox(20);
-        layoutSignIn.getChildren().addAll(label, button, yesButton, noButton);
+        layoutSignIn.getChildren().addAll(button);
         sceneSignIn = new Scene(layoutSignIn, 200, 200);
 
+        primaryStage=Main_page.Sign_in(primaryStage, sceneGame);                                            //call main page
 
-
-        Button buttonOther = new Button("Back");
-        buttonOther.setOnAction(e -> primaryStage.setScene(sceneSignIn));
         StackPane layoutOther = new StackPane();
-        layoutOther.getChildren().add(buttonOther);
         sceneOther = new Scene(layoutOther,200,200);
 
         primaryStage.setTitle("Chess");
