@@ -3,7 +3,6 @@ package Client.Chess.Game;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
@@ -14,16 +13,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.Socket;
 
 
 public class Chess extends Application {
@@ -32,7 +24,6 @@ public class Chess extends Application {
     Scene sceneGame;
 
     public static boolean turn = true;                 //whos turn it is true =white
-    public static int   movement = 0;
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
@@ -73,8 +64,6 @@ public class Chess extends Application {
         layout.setSpacing(10);
         Scene scene = new Scene(layout);
 
-
-        StackPane layoutOther = new StackPane();
         primaryStage.setTitle("Chess");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -220,12 +209,7 @@ public class Chess extends Application {
                     &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.NORMAL);
             }
-//            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+2))
-//                    &&board[newX][newY].hasPiece()==false&&piece.getMovement()==0
-//                    &&checkPathBlockageStraight(piece, newX, newY)){
-//                Check_promotion_Results(piece);
-//                return new MoveResult(MoveType.NORMAL);
-//            }
+
             if(board[newX][newY].hasPiece() &&
                     (((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100+1)) ||
                             ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))
