@@ -45,7 +45,7 @@ public class Chess extends Application {
         layoutSignIn.getChildren().addAll(button);
         sceneSignIn = new Scene(layoutSignIn, 200, 200);
 
-        primaryStage=Main_page.Sign_in(primaryStage, sceneGame);                                            //call main page
+//        primaryStage=Main_page.Sign_in(primaryStage, sceneGame);                                            //call main page
 
         StackPane layoutOther = new StackPane();
         sceneOther = new Scene(layoutOther,200,200);
