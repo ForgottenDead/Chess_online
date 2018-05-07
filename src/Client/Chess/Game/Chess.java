@@ -1,23 +1,35 @@
 package Client.Chess.Game;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.Socket;
+
 
 public class Chess extends Application {
 
-    Scene sceneSignIn;
-    Scene sceneOther;
+    Scene scene;
+    Scene sceneGame;
 
     public static boolean turn = true;                 //whos turn it is true =white
     public static int   movement = 0;
@@ -30,31 +42,43 @@ public class Chess extends Application {
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
 
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Scene sceneGame = new Scene(createContent());
 
-        Button button = new Button("Sign_in");
+        sceneGame = new Scene(createContent());
 
-        button.setOnAction(e -> primaryStage.setScene(sceneGame));
-        VBox layoutSignIn = new VBox(20);
-        layoutSignIn.getChildren().addAll(button);
-        sceneSignIn = new Scene(layoutSignIn, 200, 200);
+        primaryStage.setTitle("Sign In");
+        primaryStage.setMinHeight(600);
+        primaryStage.setMinHeight(800);
 
-//        primaryStage=Main_page.Sign_in(primaryStage, sceneGame);                                            //call main page
+        Label label1 = new Label("Type your username below.");
+        TextField textField = new TextField();
+        Button signInButton = new Button("Sign_in");
+        signInButton.setOnAction(e -> primaryStage.setScene(sceneGame));
+        ListView<String> list = new ListView<String>();
+            ObservableList<String> items = FXCollections.observableArrayList("1");
+            list.setItems(items);
+        Button yesButton = new Button("Yes");
+        yesButton.setDisable(true);
+        Button noButton = new Button("No");
+        noButton.setDisable(true);
+
+        HBox layout = new HBox();
+        layout.getChildren().addAll(label1, textField, signInButton, list, yesButton, noButton);
+        layout.setSpacing(10);
+        Scene scene = new Scene(layout);
+
 
         StackPane layoutOther = new StackPane();
-        sceneOther = new Scene(layoutOther,200,200);
-
         primaryStage.setTitle("Chess");
-        primaryStage.setScene(sceneSignIn);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
-
     private Parent createContent() {
         Pane root = new Pane();
         root.setPrefSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -191,8 +215,8 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100+1)||
-                                        ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
-                &&board[newX][newY].hasPiece()==false
+                    ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
+                    &&board[newX][newY].hasPiece()==false
                     &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.NORMAL);
             }
@@ -204,7 +228,7 @@ public class Chess extends Application {
 //            }
             if(board[newX][newY].hasPiece() &&
                     (((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100+1)) ||
-                    ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))
+                            ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))
                     &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
@@ -217,15 +241,15 @@ public class Chess extends Application {
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100-1)||
-                                        ((newY==(int)(piece.getOldY())/100-2)&&piece.getMovement()==0)))
-                &&board[newX][newY].hasPiece()==false
+                    ((newY==(int)(piece.getOldY())/100-2)&&piece.getMovement()==0)))
+                    &&board[newX][newY].hasPiece()==false
                     &&checkPathBlockageStraight(piece, newX, newY)){
                 Check_promotion_Results(piece);
                 return new MoveResult(MoveType.NORMAL);
             }
             if(board[newX][newY].hasPiece()&&
                     (((newX==(int)(piece.getOldX())/100-1) && (newY==(int)(piece.getOldY())/100-1)) ||
-                    ((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100-1)))
+                            ((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100-1)))
                     &&checkPathBlockageStraight(piece, newX, newY)){
                 return new MoveResult(MoveType.KILL, board[newX][newY].getPiece());
             }
