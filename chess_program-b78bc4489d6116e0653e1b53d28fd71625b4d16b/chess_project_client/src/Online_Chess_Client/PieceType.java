@@ -1,0 +1,10 @@
+package Online_Chess_Client;
+
+public enum PieceType { //insted of move direction give them a move ID
+    RED_PAWN, RED_ROOK_LIGHT, RED_ROOK_DARK, RED_KING,
+    RED_QUEEN, RED_BISHOP_LIGHT, RED_BISHOP_DARK, RED_KNIGHT,
+    WHITE_PAWN, WHITE_ROOK_LIGHT, WHITE_ROOK_DARK, WHITE_KING,
+    WHITE_QUEEN, WHITE_BISHOP_LIGHT, WHITE_BISHOP_DARK, WHITE_KNIGHT
+
+
+}
