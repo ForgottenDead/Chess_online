@@ -1,4 +1,4 @@
-package Client.Chess.Game;
+package Online_Chess_Client;
 
 public class MoveResult {
 

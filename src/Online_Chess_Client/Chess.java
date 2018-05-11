@@ -1,6 +1,9 @@
-package Client.Chess.Game;
+package Online_Chess_Client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -13,17 +16,30 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+//TODO create a timer
 public class Chess extends Application {
-
+    private volatile ArrayList<Piece> pieceList;
     Scene scene;
     Scene sceneGame;
 
-    public static boolean turn = true;                 //whos turn it is true =white
+    public static volatile boolean turn = true;                 //whos turn it is true =white
+    private volatile boolean side = true; //determines what the user can control: true is white, false is black
+    private volatile String selectedUser = "";
+
+    public static int   movement = 0;
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
@@ -32,7 +48,17 @@ public class Chess extends Application {
 
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
-
+    private ObservableList<String> items;
+    private Label invites;
+    private Button yesButton;
+    private Button noButton;
+    private Button sendInvite;
+    private Stage chessStage;
+    private Client client;
+    private Label whiteTimer = new Label("0 White | ");
+    private Label blackTimer = new Label("0 Black | ");
+    private Label turnTracker = new Label("You haven't started a match yet!");
+    private volatile boolean gameStarted = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -40,34 +66,309 @@ public class Chess extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        InetAddress ip = InetAddress.getByName("localhost");
+        int port = 4000;
+        client = new Client(port, ip);
+        client.start();
+
+        pieceList = new ArrayList<Piece>();
 
         sceneGame = new Scene(createContent());
-
         primaryStage.setTitle("Sign In");
         primaryStage.setMinHeight(600);
         primaryStage.setMinHeight(800);
 
         Label label1 = new Label("Type your username below.");
+        invites = new Label("");
         TextField textField = new TextField();
         Button signInButton = new Button("Sign_in");
-        signInButton.setOnAction(e -> primaryStage.setScene(sceneGame));
         ListView<String> list = new ListView<String>();
-            ObservableList<String> items = FXCollections.observableArrayList("1");
-            list.setItems(items);
-        Button yesButton = new Button("Yes");
-        yesButton.setDisable(true);
-        Button noButton = new Button("No");
+        items = FXCollections.observableArrayList("1");
+        list.setItems(items);
+        yesButton = new Button("Yes");
+        noButton = new Button("No");
+        Button refreshButton = new Button("Refresh");
+        sendInvite = new Button("Invite");
+        //set the no button, yes button, and refresh to disabled until the user signs in
         noButton.setDisable(true);
+        yesButton.setDisable(true);
+        refreshButton.setDisable(true);
+        sendInvite.setDisable(true);
+
+        chessStage = primaryStage;
+        //primaryStage.setScene(sceneGame)
+        //tell the server yes, I'm willing to play with the inviter
+        yesButton.setOnAction(e -> Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                client.sendMessageToServer("--yes " + invites.getText().split(" ")[2]);
+                gameStarted = true;
+                primaryStage.setScene(sceneGame);
+            }
+        }));
+
+        //no declines the invitation and allows the individual to send invites while locking down the yes and no buttons again
+        noButton.setOnAction(e -> Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                client.sendMessageToServer("--no " + invites.getText().split(" ")[2]);
+                invites.setText("Declined invitation from " + invites.getText().split(" ")[2]);
+                yesButton.setDisable(true);
+                sendInvite.setDisable(false);
+                noButton.setDisable(true);
+            }
+        }));
+
+        //this will send the client's username to the server and then disable the button
+        //also enables the rest of the buttons
+        signInButton.setOnAction(e -> Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                client.sendUserNameToServer(textField.getText());
+                refreshButton.setDisable(false);
+                //yesButton.setDisable(false);
+                //noButton.setDisable(false);
+                signInButton.setDisable(true);
+                sendInvite.setDisable(false);
+                client.sendMessageToServer("--list");
+                primaryStage.setTitle(textField.getText());
+            }
+        }));
+
+        refreshButton.setOnAction(e -> client.sendMessageToServer("--list"));
+
+        //user clicks on a name in the list, and the selected user to send an invite to changes with it
+        list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                selectedUser = newValue;
+            }
+        });
+
+        //sends a --join message to the user and also changes the label to "inviting x"
+        sendInvite.setOnAction(e -> Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                client.sendMessageToServer("--join " + selectedUser);
+                invites.setText("Inviting " + selectedUser);
+            }
+        }));
 
         HBox layout = new HBox();
-        layout.getChildren().addAll(label1, textField, signInButton, list, yesButton, noButton);
+        layout.getChildren().addAll(label1, textField, signInButton, list, yesButton, noButton, refreshButton, sendInvite, invites);
         layout.setSpacing(10);
         Scene scene = new Scene(layout);
 
-        primaryStage.setTitle("Chess");
+
+        StackPane layoutOther = new StackPane();
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        //timer window
+        HBox timerLayout = new HBox();
+        Stage secondStage = new Stage();
+        secondStage.setTitle("Timer");
+        secondStage.setScene(new Scene(timerLayout));
+        secondStage.setWidth(350);
+        secondStage.setHeight(175);
+        timerLayout.getChildren().addAll(whiteTimer, blackTimer, turnTracker);
+        TimerThread chessTimer = new TimerThread();
+        chessTimer.start();
+        secondStage.show();
     }
+
+    class TimerThread extends Thread {
+        private int whiteTimerCount;
+        private int blackTimerCount;
+
+        public TimerThread(){
+            whiteTimerCount = 0;
+            blackTimerCount = 0;
+        }
+
+        @Override
+        public void run(){
+            try {
+
+                while (true) {
+                    if (gameStarted) {
+                        while (turn) {
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    turnTracker.setText("Current Turn: White");
+                                    whiteTimer.setText(Long.toString(whiteTimerCount) + " White | ");
+                                    whiteTimerCount = whiteTimerCount + 1;
+                                }
+                            });
+                            sleep(1000);
+                        }
+                        //update whiteTimerCount and blackTimerCount
+
+                        while (!turn) {
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    turnTracker.setText("Current Turn: Black");
+                                    blackTimer.setText(Long.toString(blackTimerCount) + " Black | ");
+                                    blackTimerCount = blackTimerCount + 1;
+                                }
+                            });
+                            sleep(1000);
+                        }
+                    }
+                }
+
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    class Client extends Thread{
+        private Socket client;
+        private DataOutputStream output;
+        private IncomingData incoming;
+
+        public Client(int port, InetAddress ip_address) throws IOException{
+            client = new Socket(ip_address, port);
+            output = new DataOutputStream(client.getOutputStream());
+        }
+
+        @Override
+        public void run(){
+            try{
+                //Scanner system_input = new Scanner(System.in);
+                incoming = new IncomingData(client);
+                incoming.start();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+
+        //due to the way the server is set up, this method is needed to send a username since the server asks for a
+        //username first, then uses that username as a key in a hashtable
+        public void sendUserNameToServer(String userName){
+            try {
+                output.writeUTF(userName);
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        //send a message to the server
+        public void sendMessageToServer(String message){
+            try {
+                output.writeUTF(message);
+            }
+            catch(IOException e){
+                e.printStackTrace();
+                //return null;
+            }
+        }
+
+    }
+
+    class IncomingData extends Thread {
+        private final Socket clientSocket;
+        private final DataInputStream incoming;
+        private String[] receiving;
+
+        public IncomingData(Socket client) throws IOException{
+            clientSocket = client;
+            incoming = new DataInputStream(clientSocket.getInputStream());
+        }
+
+
+        //server prefaces every message with what is in it, and from there we figure out what to do
+        @Override
+        public void run(){
+            while (true) {
+                try{
+                    String receivingText = incoming.readUTF();
+                    receiving = receivingText.split(" "); //turn the message into an array
+
+                    //check the first item in the message, as that says what's in it
+                    if(receiving[0].equals("users")){
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                items.remove(0, items.size());
+                                items.addAll(Arrays.copyOfRange(receiving,1, receiving.length));
+                            }
+                        });
+                    }
+                    else if(receiving[0].equals("move")){
+                        System.out.println(receivingText);
+                        for(Piece e : pieceList){
+                            if(e.getType().toString().equals(receiving[1])
+                                    && e.getOldX()/TILE_SIZE == Integer.parseInt(receiving[4])
+                                    && e.getOldY()/TILE_SIZE == Integer.parseInt(receiving[5])){
+                                updateBoard(e, Integer.parseInt(receiving[2]), Integer.parseInt(receiving[3]));
+                            }
+                        }
+                    }
+                    else if(receiving[0].equals("invite")){
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                invites.setText("Invite from " + receiving[1]);
+                                yesButton.setDisable(false);
+                                noButton.setDisable(false);
+                                sendInvite.setDisable(true);
+                            }
+                        });
+                    }
+                    else if(receiving[0].equals("side")){
+                        if(receiving[1].equals("black")){
+                            side = false;
+                            System.out.println(side);
+                        }
+                        else{
+                            side = true;
+                            System.out.println(side);
+                        }
+                    }
+                    else if(receiving[0].equals("error")){
+                        System.out.println(receivingText);
+                    }
+                    else if(receiving[0].equals("Declined")){
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                invites.setText(receivingText);
+                                sendInvite.setDisable(false);
+                            }
+                        });
+                    }
+                    else if(receiving[0].equals("turn")){
+                        //it's your turn!
+                        turn = !turn;
+                    }
+                    else if(receiving[0].equals("start")){
+                        gameStarted = true;
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                chessStage.setScene(sceneGame);
+                            }
+                        });
+                    }
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+    }
+
+
     private Parent createContent() {
         Pane root = new Pane();
         root.setPrefSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -131,16 +432,15 @@ public class Chess extends Application {
                 if (y == 6) {
                     piece = makePiece(PieceType.WHITE_PAWN, x, y, 0);
                 }
-
                 if (piece != null) {
                     tile.setPiece(piece);
                     pieceGroup.getChildren().add(piece);
+                    pieceList.add(piece);
                 }
             }
         }
         return root;
     }
-
 
     private Piece makePiece(PieceType type, int x, int y, int movement) {
         Piece piece = new Piece(type, x, y, movement);
@@ -170,18 +470,20 @@ public class Chess extends Application {
                     board[newX][newY].setPiece(piece);
                     turn=!turn;
                     Check_turn_Results();
+                    client.sendMessageToServer("--move " + piece.getType() + " " + newX + " " + newY + " " +  x0 + " " + y0);
                     piece.setMovement();
+                    System.out.println(piece.getType() + " moved to X:" + newX + " Y:" + newY + " OldX: " + x0 + " OldY: " + y0);
                     break;
                 case KILL:
                     piece.move(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
-
                     Piece otherPiece = result.getPiece();
                     board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
                     pieceGroup.getChildren().remove(otherPiece);
                     turn=!turn;
                     Check_turn_Results();
+                    client.sendMessageToServer("--move " + piece.getType() + " " + newX + " " + newY + " " +  x0 + " " + y0);
                     piece.setMovement();
                     break;
             }
@@ -193,33 +495,57 @@ public class Chess extends Application {
         return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
     }
 
-    private MoveResult updateBoard(Piece piece, int newX, int newY) {
+    private void updateBoard(Piece piece, int newX, int newY) {
         int x0 = toBoard(piece.getOldX());
         int y0 = toBoard(piece.getOldY());
-        piece.move(newX, newY);
-        board[x0][y0].setPiece(null);
-        board[newX][newY].setPiece(piece);
-        turn=!turn;
-        Check_turn_Results();
-        piece.setMovement();
+        //normal
+        if(board[newX][newY].hasPiece()){
+            System.out.println("KILL");
+            piece.move(newX, newY);
+            board[x0][y0].setPiece(null);
+            Piece otherPiece = board[newX][newY].getPiece();
+            board[toBoard((otherPiece).getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
+            Platform.runLater(new Runnable() {
+                @Override public void run() {
+                    pieceGroup.getChildren().remove(otherPiece);
+                }
+            });
+            board[newX][newY].setPiece(piece);
+            turn=!turn;
+            Check_turn_Results();
+            piece.setMovement();
+        }
+        else{
+            piece.move(newX, newY);
+            board[x0][y0].setPiece(null);
+            board[newX][newY].setPiece(piece);
+            turn=!turn;
+            Check_turn_Results();
+            piece.setMovement();
+        }
     }
-
 
     private MoveResult tryMove(Piece piece, int newX, int newY) {
         if(newX==piece.getOldX()/100 && newY ==piece.getOldY()/100){             //if no move
             return new MoveResult(MoveType.NONE);
         }
         if (piece.getType()==PieceType.RED_PAWN){
-            if(turn==true){
+            if(turn==true || side==true){
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100+1)||
                     ((newY==(int)(piece.getOldY())/100+2)&&piece.getMovement()==0)))
                     &&board[newX][newY].hasPiece()==false
                     &&checkPathBlockageStraight(piece, newX, newY)){
+
                 return new MoveResult(MoveType.NORMAL);
             }
-
+//            if(((newX==(int)(piece.getOldX())/100) && (newY==(int)(piece.getOldY())/100+2))
+//                    &&board[newX][newY].hasPiece()==false&&piece.getMovement()==0
+//                    &&checkPathBlockageStraight(piece, newX, newY)){
+//                Check_promotion_Results(piece);
+//                return new MoveResult(MoveType.NORMAL);
+//            }
             if(board[newX][newY].hasPiece() &&
                     (((newX==(int)(piece.getOldX())/100+1) && (newY==(int)(piece.getOldY())/100+1)) ||
                             ((newX==(int)(piece.getOldX())/100-1) &&  (newY==(int)(piece.getOldY())/100+1)))
@@ -231,7 +557,7 @@ public class Chess extends Application {
             }
         }
         if (piece.getType()==PieceType.WHITE_PAWN ){
-            if(turn==false){
+            if(turn==false || side == false){
                 return new MoveResult(MoveType.NONE);
             }
             if(((newX==(int)(piece.getOldX())/100) && ((newY==(int)(piece.getOldY())/100-1)||
@@ -252,7 +578,7 @@ public class Chess extends Application {
             }
         }
         if (piece.getType()==PieceType.RED_ROOK_LIGHT || piece.getType()==PieceType.RED_ROOK_DARK) {
-            if(turn==true){
+            if(turn==true || side == true){
                 return new MoveResult(MoveType.NONE);
             }
             if ((((newX == (int) (piece.getOldX()) / 100 )) ||
@@ -271,7 +597,7 @@ public class Chess extends Application {
             }
         }
         if (piece.getType()==PieceType.WHITE_ROOK_LIGHT || piece.getType()==PieceType.WHITE_ROOK_DARK) {
-            if(turn==false){
+            if(turn==false || side==false){
                 return new MoveResult(MoveType.NONE);
             }
             if ((((newX == (int) (piece.getOldX()) / 100 )) ||
@@ -291,7 +617,7 @@ public class Chess extends Application {
         }
 
         if (piece.getType()==PieceType.RED_KING ){
-            if(turn==true){
+            if(turn==true || side==true){
                 return new MoveResult(MoveType.NONE);
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
@@ -311,7 +637,7 @@ public class Chess extends Application {
             }
         }
         if (piece.getType()==PieceType.WHITE_KING){
-            if(turn==false){
+            if(turn==false || side == false){
                 return new MoveResult(MoveType.NONE);
             }
             if(((newY<=(int)(piece.getOldY())/100+1)&&(newY>=(int)(piece.getOldY())/100-1)) &&
@@ -331,7 +657,7 @@ public class Chess extends Application {
             }
         }
         if (piece.getType()==PieceType.RED_BISHOP_LIGHT||piece.getType()==PieceType.RED_BISHOP_DARK){
-            if(turn==true){
+            if(turn==true || side==true){
                 return new MoveResult(MoveType.NONE);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
@@ -349,7 +675,7 @@ public class Chess extends Application {
         }
 
         if (piece.getType()==PieceType.WHITE_BISHOP_LIGHT||piece.getType()==PieceType.WHITE_BISHOP_DARK){
-            if(turn==false){
+            if(turn==false || side==false){
                 return new MoveResult(MoveType.NONE);
             }
             if ((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)
@@ -368,7 +694,7 @@ public class Chess extends Application {
 
 
         if (piece.getType()==PieceType.RED_QUEEN){
-            if(turn==true){
+            if(turn==true || side==true){
                 return new MoveResult(MoveType.NONE);
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
@@ -392,7 +718,7 @@ public class Chess extends Application {
         }
 
         if (piece.getType()==PieceType.WHITE_QUEEN){
-            if(turn==false){
+            if(turn==false || side==false){
                 return new MoveResult(MoveType.NONE);
             }
             if (((Math.abs(newX-piece.getOldX()/100) - Math.abs(newY-piece.getOldY()/100)==0)||
@@ -416,13 +742,13 @@ public class Chess extends Application {
         }
 
         if (piece.getType()==PieceType.RED_KNIGHT) {
-            if(turn==true){
+            if(turn==true || side==true){
                 return new MoveResult(MoveType.NONE);
             }
             return getMoveResult_Knight(piece, newX, newY);
         }
         if (piece.getType()==PieceType.WHITE_KNIGHT) {
-            if(turn==false){
+            if(turn==false || side==false){
                 return new MoveResult(MoveType.NONE);
             }
             return getMoveResult_Knight(piece, newX, newY);

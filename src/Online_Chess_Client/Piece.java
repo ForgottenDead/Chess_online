@@ -1,11 +1,11 @@
-package Client.Chess.Game;
+package Online_Chess_Client;
 
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.image.Image ;
 
-import static Client.Chess.Game.Chess.TILE_SIZE;
+//import static Client.Chess.Game.Chess.TILE_SIZE;
 
 
 public class Piece extends StackPane {
@@ -15,6 +15,17 @@ public class Piece extends StackPane {
     private double mouseX, mouseY;
     private double oldX, oldY;
     private int movement;
+    private int TILE_SIZE = Chess.TILE_SIZE;
+
+    private double currentX, currentY;
+
+    public double getCurrentX(){
+        return currentX;
+    }
+
+    public double getCurrentY(){
+        return currentY;
+    }
 
     public PieceType getType() {
         return type;
@@ -46,86 +57,85 @@ public class Piece extends StackPane {
 
         move(x, y);
         GridPane gridpane = new GridPane();
-        Image image = new Image("File:C:\\Users\\Forgotten\\IdeaProjects\\" +
-                "Chess\\src\\Client\\Pieces\\black_pawn.PNG");
+        Image image = new Image("file:/Pieces/black_pawn.PNG");
         switch(type){
             case RED_PAWN:
-                image = new Image("File:src\\Client\\Pieces\\black_pawn.PNG",
+                image = new Image("file:Pieces/black_pawn.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_ROOK_LIGHT:
-                image = new Image("File:src\\Client\\Pieces\\black_rook.PNG",
+                image = new Image("file:Pieces/black_rook.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_ROOK_DARK:
-                image = new Image("File:src\\Client\\Pieces\\black_rook.PNG",
+                image = new Image("file:Pieces/black_rook.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_KING:
-                image = new Image("File:src\\Client\\Pieces\\black_king.PNG",
+                image = new Image("file:Pieces/black_king.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_QUEEN:
-                image = new Image("File:src\\Client\\Pieces\\black_queen.PNG",
+                image = new Image("file:Pieces/black_queen.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_BISHOP_LIGHT:
-                image = new Image("File:src\\Client\\Pieces\\black_bishop.PNG",
+                image = new Image("file:Pieces/black_bishop.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_BISHOP_DARK:
-                image = new Image("File:src\\Client\\Pieces\\black_bishop.PNG",
+                image = new Image("file:/Pieces/black_bishop.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case RED_KNIGHT:
-                image = new Image("File:src\\Client\\Pieces\\black_knight.PNG",
+                image = new Image("file:Pieces/black_knight.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_PAWN:
-                image = new Image("File:src\\Client\\Pieces\\white_pawn.PNG",
+                image = new Image("file:Pieces/white_pawn.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_ROOK_LIGHT:
-                image = new Image("File:src\\Client\\Pieces\\white_rook.PNG",
+                image = new Image("file:Pieces/white_rook.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_ROOK_DARK:
-                image = new Image("File:src\\Client\\Pieces\\white_rook.PNG",
+                image = new Image("file:Pieces/white_rook.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_KING:
-                image = new Image("File:src\\Client\\Pieces\\white_king.PNG",
+                image = new Image("file:Pieces/white_king.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_QUEEN:
-                image = new Image("File:src\\Client\\Pieces\\white_queen.PNG",
+                image = new Image("file:Pieces/white_queen.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_BISHOP_LIGHT:
-                image = new Image("File:src\\Client\\Pieces\\white_bishop.PNG",
+                image = new Image("file:Pieces/white_bishop.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_BISHOP_DARK:
-                image = new Image("File:src\\Client\\Pieces\\white_bishop.PNG",
+                image = new Image("file:Pieces/white_bishop.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
             case WHITE_KNIGHT:
-                image = new Image("File:src\\Client\\Pieces\\white_knight.PNG",
+                image = new Image("file:Pieces/white_knight.PNG",
                         TILE_SIZE, TILE_SIZE,
                         false, false);
                 break;
